@@ -99,9 +99,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                     PrimaryButton(
                       buttonText: "Register Me!",
-                      onPressed: () {
-                        print("Register button pressed : ${emailController.text} - ${passwordController.text} - ${confirmPasswordController.text} ");
-                        print("Form Valid : ${_formKey.currentState!.validate()}");
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           if(passwordController.text.toString() != confirmPasswordController.text.toString()) {
                             ScaffoldMessenger.of(context).showSnackBar(
@@ -109,11 +107,53 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             );
                             return;
                           }
-                          AppFirebaseService.instance.registerUser(
-                            emailController.text.toString(), 
-                            passwordController.text.toString(), 
-                            context
-                            );
+                          
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                          );
+                          
+                          final result = await AppFirebaseService().registerUser(
+                            email: emailController.text.toString(), 
+                            password: passwordController.text.toString(), 
+                          );
+                          
+                          if (mounted) {
+                            Navigator.pop(context);
+
+                            if (result['success'] == true) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(result['message']),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+                              
+                              Future.delayed(const Duration(seconds: 1), () {
+                                if (mounted) {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => LoginScreen(),
+                                    ),
+                                  );
+                                }
+                              });
+                           
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(result['message']),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
                         }
                       },
                     ),
@@ -124,7 +164,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       text1: 'Already have account?',
                       text2: 'Login',
                       onPressed: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => LoginScreen(),

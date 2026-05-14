@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:interview_test/screens/dashboard_screen.dart';
 import 'package:interview_test/screens/register.dart';
+import 'package:interview_test/services/firebase_service.dart';
 import 'package:interview_test/widgets/bottom_line_auth.dart';
 import 'package:interview_test/widgets/email_widget.dart';
 import 'package:interview_test/widgets/password_widget.dart';
@@ -78,8 +81,57 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     PrimaryButton(
                       buttonText: "Login Me!",
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {}
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                           showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            },
+                          );
+
+                          final result = await AppFirebaseService().loginUser(
+                            email: emailController.text.toString(),
+                            password: passwordController.text.toString()  
+                          );
+
+                          if (mounted) {
+                            Navigator.pop(context);
+                          
+                            if(result['success'] == true) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Login successful"),
+                                  backgroundColor: Colors.green,
+                                ),
+                              );
+
+                              User user = result['user'];
+
+                              Future.delayed(Duration(seconds: 1), () {
+                                if(mounted){
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DashboardScreen(userName: user.email ?? 'User'),
+                                    ),
+                                  );
+                                }
+                              });
+
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(result['message'] ?? "Login failed"),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
+                        }
                       },
                     ),
 
@@ -89,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       text1: 'New User ?',
                       text2: 'Create Account',
                       onPressed: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => RegisterScreen(),
