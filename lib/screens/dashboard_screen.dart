@@ -44,9 +44,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(quote?.content ?? 'Loading quote...', style: TextStyle(fontSize: 24, color: Colors.green),),
+              Text(quote?.content ?? 'Loading quote...', style: TextStyle(fontSize: 24, color: Colors.blue),),
               SizedBox(height: 24),
-              Align(alignment: Alignment.bottomRight, child: Text(quote?.author ?? 'Loading author...', style: TextStyle(fontSize: 16, color: Colors.red)  ,))],
+              Align(alignment: Alignment.bottomRight, child: Text(quote?.author ?? 'Loading author...', style: TextStyle(fontSize: 16, color: Colors.black)  ,))],
             
           ),
         ),
