@@ -18,6 +18,8 @@ class _CreateTaskState extends State<CreateTask> {
   TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
 
+  bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     dateController.text = formatDate(_current_date!);
@@ -115,7 +117,15 @@ class _CreateTaskState extends State<CreateTask> {
                   ),
 
                   SizedBox(height: 48.0),
+
                   PrimaryButton(buttonText: 'Create Task', onPressed: _addTask),
+                  SizedBox(height: 14.0),
+
+                  isLoading
+                      ? Center(
+                          child: CircularProgressIndicator(color: Colors.grey),
+                        )
+                      : SizedBox.shrink(),
                 ],
               ),
             ),
@@ -145,13 +155,9 @@ class _CreateTaskState extends State<CreateTask> {
 
   Future<void> _addTask() async {
     if (_formKey.currentState!.validate()) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return const Center(child: CircularProgressIndicator());
-        },
-      );
+      setState(() {
+        isLoading = true;
+      });
 
       try {
         var date = _current_date ?? _today_date;
@@ -167,7 +173,7 @@ class _CreateTaskState extends State<CreateTask> {
                 backgroundColor: Colors.green,
               ),
             );
-            Navigator.pop(context);
+            Navigator.pop(context, true);
           },
         );
       } catch (e) {
@@ -179,9 +185,9 @@ class _CreateTaskState extends State<CreateTask> {
         );
         return;
       } finally {
-        if (mounted) {
-          Navigator.pop(context);
-        }
+        setState(() {
+          isLoading = false;
+        });
       }
     }
   }

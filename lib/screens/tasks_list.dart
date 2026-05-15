@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:interview_test/models/task_model.dart';
 import 'package:interview_test/screens/create_task.dart';
 import 'package:interview_test/services/task_db_service.dart';
 
-enum TaskStatus {
-  pending,
-  completed,
-  inProgress
-}
+enum TaskStatus { pending, completed }
 
 class TasksList extends StatefulWidget {
   const TasksList({super.key});
@@ -18,35 +15,262 @@ class TasksList extends StatefulWidget {
 
 class _TasksListState extends State<TasksList> {
   List<TaskModel> tasks = [];
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _loadTasks();
+    fetchTasks();
   }
 
-  Future<void> _loadTasks() async {
-    final tasksList = await TaskDbService().getTasks();
+  Future<void> fetchTasks() async {
     setState(() {
-      tasks = tasksList;
+      isLoading = true;
     });
-    print('tasks: ${tasksList.length}');
+
+    try {
+      final tasksList = await TaskDbService().fetchTasks();
+      setState(() {
+        tasks = tasksList;
+      });
+    } catch (e) {
+      print('Error loading tasks: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text('Tasks List'),
-      ),
-      
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                return Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+
+                  padding: const EdgeInsets.all(16),
+
+                  decoration: BoxDecoration(
+                    color: tasks[index].status == TaskStatus.completed.name
+                        ? Colors.green.shade50
+                        : Colors.yellow.shade50,
+
+                    borderRadius: BorderRadius.circular(18),
+
+                    border: Border.all(
+                      color: tasks[index].status == TaskStatus.completed.name
+                          ? Colors.green.shade200
+                          : Colors.yellow.shade300,
+                    ),
+                  ),
+
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Align(
+                        alignment: Alignment.topRight,
+
+                        child: Text(
+                          DateFormat('dd MMM yyyy').format(tasks[index].date),
+
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      Text(
+                        tasks[index].title,
+
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
+
+                      const SizedBox(height: 10),
+
+                      Text(
+                        tasks[index].desc,
+
+                        style: TextStyle(
+                          fontSize: 14,
+                          height: 1.4,
+                          color: Colors.grey.shade800,
+                        ),
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 7,
+                            ),
+
+                            decoration: BoxDecoration(
+                              color: tasks[index].status == TaskStatus.completed.name
+                                  ? Colors.green.shade100
+                                  : Colors.orange.shade100,
+
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+
+                            child: Text(
+                              tasks[index].status == TaskStatus.completed.name
+                                  ? "Completed"
+                                  : "Pending",
+
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+
+                                color: tasks[index].status == TaskStatus.completed.name
+                                    ? Colors.green.shade800
+                                    : Colors.orange.shade800,
+                              ),
+                            ),
+                          ),
+
+                          const Spacer(),
+
+                          PopupMenuButton(
+                            icon: const Icon(Icons.more_vert),
+
+                            itemBuilder: (context) => [
+                              const PopupMenuItem(
+                                value: 'edit',
+                                child: Text('Edit'),
+                              ),
+
+                              PopupMenuItem(
+                                value: 'done',
+
+                                child: Text(
+                                  tasks[index].status == TaskStatus.completed.name
+                                      ? 'Mark as Pending'
+                                      : 'Mark as Done',
+                                ),
+                              ),
+
+                              const PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Delete'),
+                              ),
+                            ],
+
+                            onSelected: (value) {
+                              if (value == 'edit') {}
+
+                              if (value == 'done') {
+                                updateStatus(tasks[index].docId);
+                              }
+
+                              if (value == 'delete') {
+                                removeTask(tasks[index].docId);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-           Navigator.push(context, MaterialPageRoute(builder: (context) => CreateTask()));
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => CreateTask()),
+          );
+
+          if (result == true) {
+            fetchTasks();
+          }
         },
         child: Icon(Icons.add),
       ),
-
     );
+  }
+
+   Future<void> updateStatus(String docId) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final resultFlag = await TaskDbService().updateStatus(docId);
+
+      if (resultFlag) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Status updated successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error occurred while updating ..'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print('error $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> removeTask(String docId) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final resultFlag = await TaskDbService().deleteTask(docId);
+
+      if (resultFlag) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Task deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error occurred while deletion'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      print('error $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 }
