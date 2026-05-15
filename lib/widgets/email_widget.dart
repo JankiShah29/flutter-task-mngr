@@ -15,6 +15,7 @@ class _EmailWidgetState extends State<EmailWidget> {
     return TextFormField(
       controller: widget.emailController,
       keyboardType: TextInputType.emailAddress,
+      textInputAction: TextInputAction.next,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return "Please enter email";

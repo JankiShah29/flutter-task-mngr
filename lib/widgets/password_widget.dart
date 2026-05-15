@@ -4,9 +4,9 @@ class PasswordWidget extends StatefulWidget {
   final TextEditingController passwordController;
   bool isPasswordHidden;
   final String hintText;
+  TextInputAction action;
 
-
-  PasswordWidget({super.key, required this.passwordController, required this.isPasswordHidden, required this.hintText});
+  PasswordWidget({super.key, required this.passwordController, required this.isPasswordHidden, required this.hintText, required this.action});
 
   @override
   State<PasswordWidget> createState() => _PasswordWidgetState();
@@ -19,6 +19,7 @@ class _PasswordWidgetState extends State<PasswordWidget> {
     return TextFormField(
       controller: widget.passwordController,
       obscureText: widget.isPasswordHidden,
+      textInputAction: widget.action,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return "Please enter password";

@@ -78,6 +78,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       passwordController: passwordController,
                       isPasswordHidden: isPasswordHidden,
                       hintText: "Enter password",
+                      action: TextInputAction.next,
                     ),
 
                     const SizedBox(height: 20),
@@ -93,6 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       passwordController: confirmPasswordController,
                       isPasswordHidden: isConfirmPasswordHidden,
                       hintText: "Re-enter password",
+                      action: TextInputAction.done,
                     ),
 
                     const SizedBox(height: 32),

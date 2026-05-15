@@ -75,6 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       passwordController: passwordController,
                       isPasswordHidden: isPasswordHidden,
                       hintText: "Enter password",
+                      action: TextInputAction.done,
                     ),
 
                     const SizedBox(height: 14),

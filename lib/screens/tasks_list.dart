@@ -45,200 +45,213 @@ class _TasksListState extends State<TasksList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          tasks.isEmpty
-              ? Center(
-                  child: Text(
-                    isLoading ? '' : 'No tasks found.',
-                    style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: tasks.length,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 6,
-                        vertical: 6,
+      appBar: AppBar(
+        title: Text('Tasks'),
+        backgroundColor: Colors.white,
+      ),
+
+      body: SafeArea(
+        child: Stack(
+          children: [
+            tasks.isEmpty
+                ? Center(
+                    child: Text(
+                      isLoading ? '' : 'No tasks found.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey.shade600,
                       ),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: tasks.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 6,
+                        ),
 
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
-                      ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 12,
+                        ),
 
-                      decoration: BoxDecoration(
-                        color: tasks[index].status == TaskStatus.completed.name
-                            ? Colors.green.shade50
-                            : Colors.yellow.shade50,
-
-                        borderRadius: BorderRadius.circular(18),
-
-                        border: Border.all(
+                        decoration: BoxDecoration(
                           color:
                               tasks[index].status == TaskStatus.completed.name
-                              ? Colors.green.shade200
-                              : Colors.yellow.shade300,
-                        ),
-                      ),
+                              ? Colors.green.shade50
+                              : Colors.yellow.shade50,
 
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  tasks[index].title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.15,
-                                    color: Colors.black87,
-                                    height: 1.25,
+                          borderRadius: BorderRadius.circular(18),
+
+                          border: Border.all(
+                            color:
+                                tasks[index].status == TaskStatus.completed.name
+                                ? Colors.green.shade200
+                                : Colors.yellow.shade300,
+                          ),
+                        ),
+
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    tasks[index].title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w700,
+                                      letterSpacing: 0.15,
+                                      color: Colors.black87,
+                                      height: 1.25,
+                                    ),
                                   ),
                                 ),
-                              ),
 
-                              const SizedBox(width: 12),
+                                const SizedBox(width: 12),
 
-                              Text(
-                                DateFormat(
-                                  'dd-MM-yyyy',
-                                ).format(tasks[index].date),
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey.shade700,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 5),
-
-                          Text(
-                            tasks[index].desc,
-                            style: TextStyle(
-                              fontSize: 14,
-                              height: 1.6,
-                              color: Colors.grey.shade800,
-                            ),
-                          ),
-
-                          const SizedBox(height: 5),
-
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 14,
-                                  vertical: 7,
-                                ),
-
-                                decoration: BoxDecoration(
-                                  color:
-                                      tasks[index].status ==
-                                          TaskStatus.completed.name
-                                      ? Colors.green.shade100
-                                      : Colors.orange.shade100,
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-
-                                child: Text(
-                                  tasks[index].status ==
-                                          TaskStatus.completed.name
-                                      ? 'Completed'
-                                      : 'Pending',
-
+                                Text(
+                                  DateFormat(
+                                    'dd-MM-yyyy',
+                                  ).format(tasks[index].date),
                                   style: TextStyle(
                                     fontSize: 12,
-                                    fontWeight: FontWeight.w600,
+                                    color: Colors.grey.shade700,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 5),
+
+                            Text(
+                              tasks[index].desc,
+                              style: TextStyle(
+                                fontSize: 14,
+                                height: 1.6,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+
+                            const SizedBox(height: 5),
+
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 7,
+                                  ),
+
+                                  decoration: BoxDecoration(
                                     color:
                                         tasks[index].status ==
                                             TaskStatus.completed.name
-                                        ? Colors.green.shade800
-                                        : Colors.orange.shade800,
-                                  ),
-                                ),
-                              ),
-
-                              const Spacer(),
-
-                              PopupMenuButton(
-                                icon: const Icon(Icons.more_vert),
-                                itemBuilder: (context) => [
-                                  const PopupMenuItem(
-                                    value: 'edit',
-                                    child: Text('Edit'),
+                                        ? Colors.green.shade100
+                                        : Colors.orange.shade100,
+                                    borderRadius: BorderRadius.circular(30),
                                   ),
 
-                                  PopupMenuItem(
-                                    value: 'done',
-                                    child: Text(
-                                      tasks[index].status ==
+                                  child: Text(
+                                    tasks[index].status ==
+                                            TaskStatus.completed.name
+                                        ? 'Completed'
+                                        : 'Pending',
+
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color:
+                                          tasks[index].status ==
                                               TaskStatus.completed.name
-                                          ? 'Mark as Pending'
-                                          : 'Mark as Done',
+                                          ? Colors.green.shade800
+                                          : Colors.orange.shade800,
                                     ),
                                   ),
+                                ),
 
-                                  const PopupMenuItem(
-                                    value: 'delete',
-                                    child: Text('Delete'),
-                                  ),
-                                ],
+                                const Spacer(),
 
-                                onSelected: (value) {
-                                  if (value == 'edit') {}
-                                  if (value == 'done') {
-                                    var status = tasks[index].status;
-                                    if (status == TaskStatus.completed.name) {
-                                      status = TaskStatus.pending.name;
-                                    } else {
-                                      status = TaskStatus.completed.name;
+                                PopupMenuButton(
+                                  icon: const Icon(Icons.more_vert),
+                                  itemBuilder: (context) => [
+                                    const PopupMenuItem(
+                                      value: 'edit',
+                                      child: Text('Edit'),
+                                    ),
+
+                                    PopupMenuItem(
+                                      value: 'done',
+                                      child: Text(
+                                        tasks[index].status ==
+                                                TaskStatus.completed.name
+                                            ? 'Mark as Pending'
+                                            : 'Mark as Done',
+                                      ),
+                                    ),
+
+                                    const PopupMenuItem(
+                                      value: 'delete',
+                                      child: Text('Delete'),
+                                    ),
+                                  ],
+
+                                  onSelected: (value) {
+                                    if (value == 'edit') {}
+                                    if (value == 'done') {
+                                      var status = tasks[index].status;
+                                      if (status == TaskStatus.completed.name) {
+                                        status = TaskStatus.pending.name;
+                                      } else {
+                                        status = TaskStatus.completed.name;
+                                      }
+                                      updateStatus(tasks[index].docId, status);
                                     }
-                                    updateStatus(tasks[index].docId, status);
-                                  }
-                                  if (value == 'delete') {
-                                    removeTask(tasks[index].docId);
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
+                                    if (value == 'delete') {
+                                      removeTask(tasks[index].docId);
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
 
-          if (isLoading)
-            Positioned.fill(
-              child: Container(
-                color: Colors.grey.shade300.withOpacity(0.4),
-                child: Center(child: CircularProgressIndicator()),
+            if (isLoading)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.grey.shade300.withOpacity(0.4),
+                  child: Center(child: CircularProgressIndicator()),
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
 
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          TaskModel taskObj = await Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => CreateTask()),
-          );
+      floatingActionButton: SafeArea(
+        child: FloatingActionButton(
+          onPressed: () async {
+            TaskModel taskObj = await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => CreateTask()),
+            );
 
-          setState(() {
-            tasks.insert(0, taskObj);
-          });
-        },
-        child: Icon(Icons.add),
+            setState(() {
+              tasks.insert(0, taskObj);
+            });
+          },
+          child: Icon(Icons.add),
+        ),
       ),
     );
   }
