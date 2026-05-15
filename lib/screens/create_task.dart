@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:interview_test/models/task_model.dart';
+import 'package:interview_test/screens/tasks_list.dart';
 import 'package:interview_test/services/task_db_service.dart';
 import 'package:interview_test/widgets/primary_button.dart';
 
@@ -111,9 +113,13 @@ class _CreateTaskState extends State<CreateTask> {
 
                       border: OutlineInputBorder(),
                     ),
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Please enter a description'
-                        : null,
+                    validator: (value) {
+                      if (value == null || value == '') {
+                        return 'Please enter description';
+                      } else if (value.trim().length > 150) {
+                        return 'Character exceeds by ${value.trim().length - 150}';
+                      }
+                    },
                   ),
 
                   SizedBox(height: 48.0),
@@ -164,7 +170,7 @@ class _CreateTaskState extends State<CreateTask> {
         final result = await TaskDbService().createTask(
           title: titleController.text,
           description: descriptionController.text,
-          status: 'pending',
+          status: TaskStatus.pending.name,
           date: date,
           onSuccess: () {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -173,9 +179,10 @@ class _CreateTaskState extends State<CreateTask> {
                 backgroundColor: Colors.green,
               ),
             );
-            Navigator.pop(context, true);
           },
         );
+
+        getTaskById(result);
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -189,6 +196,27 @@ class _CreateTaskState extends State<CreateTask> {
           isLoading = false;
         });
       }
+    }
+  }
+
+  Future<TaskModel?> getTaskById(String docId) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final taskObj = await TaskDbService().getTaskById(docId);
+      if (taskObj != null) {
+        Navigator.pop(context, taskObj);
+      } else {
+        Navigator.pop(context, null);
+      }
+    } catch (e) {
+      print('something went wrong');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 }

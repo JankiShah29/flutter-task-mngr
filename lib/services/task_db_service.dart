@@ -2,13 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:interview_test/models/task_model.dart';
-import 'package:interview_test/screens/tasks_list.dart';
 
 class TaskDbService {
   final auth = FirebaseAuth.instance;
   final db = FirebaseFirestore.instance;
 
-  Future<bool> createTask({
+  Future<String> createTask({
     required String title,
     required String description,
     required String status,
@@ -19,7 +18,7 @@ class TaskDbService {
       final userId = auth.currentUser?.email;
       if (userId == null) {
         print('No user logged in');
-        return false;
+        return '';
       }
 
       final response = await db
@@ -27,19 +26,17 @@ class TaskDbService {
           .doc(userId)
           .collection('tasks')
           .add({
-            // add
             'title': title,
             'description': description,
             'date': date,
             'status': status,
           });
 
-      print(response.id);
       onSuccess();
-      return true;
+      return response.id;
     } catch (e) {
       print('Error creating task: $e');
-      return false;
+      return '';
     }
   }
 
@@ -66,13 +63,33 @@ class TaskDbService {
     return tasks;
   }
 
-  Stream<QuerySnapshot> getTasks() {
-    return db
-        .collection("users")
-        .doc(auth.currentUser?.email)
-        .collection("tasks")
-        .orderBy("date", descending: true)
-        .snapshots();
+  Future<TaskModel?> getTaskById(String docId) async {
+    try {
+      final result = await db
+          .collection("users")
+          .doc(auth.currentUser?.email)
+          .collection("tasks")
+          .doc(docId)
+          .get();
+
+      if (result.exists) {
+        final data = result.data() as Map<String, dynamic>;
+
+        final obj = TaskModel(
+          docId: docId,
+          title: data["title"],
+          desc: data["description"],
+          date: (data["date"] as Timestamp).toDate(),
+          status: data["status"],
+        );
+
+        return obj;
+      }
+
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<bool> deleteTask(String docId) async {
@@ -90,14 +107,14 @@ class TaskDbService {
     }
   }
 
-  Future<bool> updateStatus(String docId) async {
+  Future<bool> updateStatus(String docId, String status) async {
     try {
       await db
           .collection("users")
           .doc(auth.currentUser?.email)
           .collection("tasks")
           .doc(docId)
-          .update({"status": TaskStatus.completed.name});
+          .update({"status": status});
 
       return true;
     } catch (e) {

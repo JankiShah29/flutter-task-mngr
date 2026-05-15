@@ -2,11 +2,11 @@ import 'package:json_annotation/json_annotation.dart';
 
 @JsonSerializable()
 class TaskModel {
-  final String docId; 
-  final String title;   
-  final String desc; 
-  final DateTime date;
-  final String status;
+   String docId; 
+   String title;   
+   String desc; 
+   DateTime date;
+   String status;
 
   TaskModel({
     required this.docId,
