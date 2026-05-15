@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:interview_test/models/quote.dart';
+import 'package:interview_test/screens/tasks_list.dart';
 import 'package:interview_test/services/api_calls_service.dart';
 import 'package:interview_test/services/firebase_service.dart';
+import 'package:interview_test/widgets/primary_button.dart';
 
 class DashboardScreen extends StatefulWidget {
   final String userName;
@@ -13,11 +15,15 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   Quote? quote;
-  
+
   @override
   void initState() {
     super.initState();
-    APICallService().getQuote().then((value) {
+    _getQuote();
+  }
+
+  Future<void> _getQuote() async {
+    await APICallService().getQuote().then((value) {
       setState(() {
         quote = value;
       });
@@ -35,7 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               await AppFirebaseService().logoutUser();
             },
             icon: const Icon(Icons.logout),
-          )
+          ),
         ],
       ),
       body: Center(
@@ -44,11 +50,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(quote?.content ?? 'Loading quote...', style: TextStyle(fontSize: 24, color: Colors.blue),),
+              Text(
+                quote?.content ?? 'Loading quote...',
+                style: TextStyle(fontSize: 24, color: Colors.blue),
+              ),
               SizedBox(height: 24),
-              Align(alignment: Alignment.bottomRight, child: Text(quote?.author ?? 'Loading author...', style: TextStyle(fontSize: 16, color: Colors.black)  ,))],
-            
+              Align(
+                alignment: Alignment.bottomRight,
+                child: Text(
+                  quote?.author ?? 'Loading author...',
+                  style: TextStyle(fontSize: 16, color: Colors.black),
+                ),
+              ),
+              SizedBox(height: 48),
+            ],
           ),
+        ),
+      ),
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: PrimaryButton(
+          buttonText: 'View Tasks',
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => TasksList()),
+            );
+          },
         ),
       ),
     );

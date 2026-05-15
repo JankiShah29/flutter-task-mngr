@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:interview_test/screens/auth_checker.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:interview_test/screens/create_task.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -24,6 +25,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       title: 'Task Manager',
       debugShowCheckedModeBanner: false,
+      //home: CreateTask(),
       home: AuthChecker(),
     );
   }
