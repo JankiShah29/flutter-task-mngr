@@ -65,32 +65,22 @@ class _TasksListState extends State<TasksList> {
                     itemBuilder: (context, index) {
                       return Card(
                         margin: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 6,
-                        ),
-
-                        padding: const EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 12,
                         ),
-
-                        decoration: BoxDecoration(
-                          color:
-                              tasks[index].status == TaskStatus.completed.name
-                              ? Colors.green.shade50
-                              : Colors.yellow.shade50,
-
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(18),
-
-                          border: Border.all(
-                            color:
-                                tasks[index].status == TaskStatus.completed.name
-                                ? Colors.green.shade200
-                                : Colors.yellow.shade300,
-                          ),
                         ),
-
-                        child: Column(
+                        color: tasks[index].status == TaskStatus.completed.name
+                            ? Colors.green.shade50
+                            : Colors.yellow.shade50,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
+                          child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
@@ -240,7 +230,7 @@ class _TasksListState extends State<TasksList> {
                             ),
                           ],
                         ),
-                      );
+                      ),);
                     },
                   ),
 
