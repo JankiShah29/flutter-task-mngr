@@ -5,14 +5,14 @@ import 'package:interview_test/services/task_db_service.dart';
 import 'package:interview_test/widgets/primary_button.dart';
 
 class CreateTask extends StatefulWidget {
-  const CreateTask({super.key});
+  TaskModel objTask;
+  CreateTask(this.objTask, {super.key});
 
   @override
   State<CreateTask> createState() => _CreateTaskState();
 }
 
 class _CreateTaskState extends State<CreateTask> {
-  DateTime _today_date = DateTime.now();
   DateTime? _current_date = DateTime.now();
   TextEditingController dateController = TextEditingController();
 
@@ -21,9 +21,16 @@ class _CreateTaskState extends State<CreateTask> {
   TextEditingController descriptionController = TextEditingController();
 
   bool isLoading = false;
+  bool isEditMode = false;
 
   @override
   Widget build(BuildContext context) {
+    isEditMode = widget.objTask.docId != '';
+    if (isEditMode) {
+      titleController.text = widget.objTask.title;
+      descriptionController.text = widget.objTask.desc;
+      _current_date = widget.objTask.date;
+    }
     dateController.text = formatDate(_current_date!);
 
     return Scaffold(
@@ -127,8 +134,8 @@ class _CreateTaskState extends State<CreateTask> {
                     SizedBox(height: 20.0),
 
                     PrimaryButton(
-                      buttonText: 'Create Task',
-                      onPressed: _addTask,
+                      buttonText: isEditMode ? 'Update Task' : 'Create Task',
+                      onPressed: isEditMode ? _updateTask : _addTask,
                     ),
                     SizedBox(height: 14.0),
 
@@ -167,6 +174,47 @@ class _CreateTaskState extends State<CreateTask> {
     }
   }
 
+  Future<void> _updateTask() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        isLoading = true;
+      });
+
+      try {
+        widget.objTask.title = titleController.text;
+        widget.objTask.desc = descriptionController.text;
+        widget.objTask.status = TaskStatus.pending.name;
+        widget.objTask.date = _current_date ?? DateTime.now();
+
+        final result = await TaskDbService().updateTask(
+          objTask: widget.objTask,
+          onSuccess: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Task updated successfully'),
+                backgroundColor: Colors.green,
+              ),
+            );
+
+            Navigator.pop(context, widget.objTask);
+          },
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating task: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      } finally {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
   Future<void> _addTask() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -174,12 +222,13 @@ class _CreateTaskState extends State<CreateTask> {
       });
 
       try {
-        var date = _current_date ?? _today_date;
+        widget.objTask.title = titleController.text;
+        widget.objTask.desc = descriptionController.text;
+        widget.objTask.status = TaskStatus.pending.name;
+        widget.objTask.date = _current_date ?? DateTime.now();
+
         final result = await TaskDbService().createTask(
-          title: titleController.text,
-          description: descriptionController.text,
-          status: TaskStatus.pending.name,
-          date: date,
+          objTask: widget.objTask,
           onSuccess: () {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(

@@ -45,10 +45,7 @@ class _TasksListState extends State<TasksList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Tasks'),
-        backgroundColor: Colors.white,
-      ),
+      appBar: AppBar(title: Text('Tasks'), backgroundColor: Colors.white),
 
       body: SafeArea(
         child: Stack(
@@ -203,8 +200,28 @@ class _TasksListState extends State<TasksList> {
                                     ),
                                   ],
 
-                                  onSelected: (value) {
-                                    if (value == 'edit') {}
+                                  onSelected: (value) async {
+                                    if (value == 'edit') {
+                                      final updatedTask = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              CreateTask(tasks[index]),
+                                        ),
+                                      );
+
+                                      if (updatedTask is TaskModel) {
+                                        final taskIndex = tasks.indexWhere(
+                                          (task) =>
+                                              task.docId == updatedTask.docId,
+                                        );
+                                        if (taskIndex != -1) {
+                                          setState(() {
+                                            tasks[taskIndex] = updatedTask;
+                                          });
+                                        }
+                                      }
+                                    }
                                     if (value == 'done') {
                                       var status = tasks[index].status;
                                       if (status == TaskStatus.completed.name) {
@@ -243,7 +260,17 @@ class _TasksListState extends State<TasksList> {
           onPressed: () async {
             TaskModel taskObj = await Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => CreateTask()),
+              MaterialPageRoute(
+                builder: (context) => CreateTask(
+                  TaskModel(
+                    docId: '',
+                    title: '',
+                    desc: '',
+                    date: DateTime.now(),
+                    status: TaskStatus.pending.name,
+                  ),
+                ),
+              ),
             );
 
             setState(() {

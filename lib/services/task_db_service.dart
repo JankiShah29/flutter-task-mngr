@@ -7,13 +7,44 @@ class TaskDbService {
   final auth = FirebaseAuth.instance;
   final db = FirebaseFirestore.instance;
 
-  Future<String> createTask({
-    required String title,
-    required String description,
-    required String status,
-    required DateTime date,
+  Future<bool> updateTask({
+    required TaskModel objTask,
     required VoidCallback onSuccess,
   }) async {
+    try {
+      print('update task');
+      final userId = auth.currentUser?.email;
+      if (userId == null) {
+        print('No user logged in');
+        return false;
+      }
+
+      final response = await db
+          .collection('users')
+          .doc(userId)
+          .collection('tasks')
+          .doc(objTask.docId)
+          .update({
+            'title': objTask.title,
+            'description': objTask.desc,
+            'date': objTask.date,
+            'status': objTask.status,
+          });
+
+      onSuccess();
+      print('success');
+      return true;
+    } catch (e) {
+      print('Error creating task: $e');
+      return false;
+    }
+  }
+
+  Future<String> createTask({
+    required TaskModel objTask,
+    required VoidCallback onSuccess,
+  }) async {
+    print("add task");
     try {
       final userId = auth.currentUser?.email;
       if (userId == null) {
@@ -26,10 +57,10 @@ class TaskDbService {
           .doc(userId)
           .collection('tasks')
           .add({
-            'title': title,
-            'description': description,
-            'date': date,
-            'status': status,
+            'title': objTask.title,
+            'description': objTask.desc,
+            'date': objTask.date,
+            'status': objTask.status,
           });
 
       onSuccess();
