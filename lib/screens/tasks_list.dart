@@ -63,7 +63,7 @@ class _TasksListState extends State<TasksList> {
                 : ListView.builder(
                     itemCount: tasks.length,
                     itemBuilder: (context, index) {
-                      return Container(
+                      return Card(
                         margin: const EdgeInsets.symmetric(
                           horizontal: 6,
                           vertical: 6,
